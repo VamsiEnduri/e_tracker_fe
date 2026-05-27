@@ -65,10 +65,7 @@ if menu == "Add Expense":
             "description": description
         }
 
-        response = requests.post(
-            f"{server}/add_expense",
-            json=payload
-        )
+        response = requests.post(f"{server}/add_expense",json=payload)
 
         st.write(response.status_code)
         st.write(response.text)
