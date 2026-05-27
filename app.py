@@ -53,13 +53,7 @@ if menu == "Add Expense":
     )
 
     payment_method = st.selectbox(
-        "Payment Method",
-        [
-            "Cash",
-            "UPI",
-            "Card",
-            "Net Banking"
-        ]
+        "Payment Method",["Cash","UPI","Card","Net Banking"]
     )
 
     expense_date = st.date_input("Expense Date")
@@ -258,4 +252,3 @@ elif menu == "Expense Summary":
 
 
 
-        
