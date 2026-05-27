@@ -2,11 +2,19 @@ import streamlit as st
 import requests
 import pandas as pd
 
-
+# ----------------------------------------
+# SERVER URL
+# ----------------------------------------
 server = "http://127.0.0.1:8000"
 
+# ----------------------------------------
+# TITLE
+# ----------------------------------------
 st.title("Expense Tracker App")
 
+# ----------------------------------------
+# SIDEBAR MENU
+# ----------------------------------------
 menu = st.sidebar.selectbox(
     "Select Option",
     [
@@ -18,27 +26,40 @@ menu = st.sidebar.selectbox(
     ]
 )
 
-
-
-# -------------------------------------------------
+# =========================================================
 # ADD EXPENSE
-# -------------------------------------------------
+# =========================================================
 if menu == "Add Expense":
 
     st.header("Add Expense")
 
     title = st.text_input("Title")
 
-    amount = st.number_input("Amount", min_value=1.0)
+    amount = st.number_input(
+        "Amount",
+        min_value=1.0
+    )
 
     category = st.selectbox(
         "Category",
-        ["Food", "Travel", "Shopping", "Bills", "Entertainment", "Other"]
+        [
+            "Food",
+            "Travel",
+            "Shopping",
+            "Bills",
+            "Entertainment",
+            "Other"
+        ]
     )
 
     payment_method = st.selectbox(
         "Payment Method",
-        ["Cash", "UPI", "Card", "Net Banking"]
+        [
+            "Cash",
+            "UPI",
+            "Card",
+            "Net Banking"
+        ]
     )
 
     expense_date = st.date_input("Expense Date")
@@ -46,6 +67,7 @@ if menu == "Add Expense":
     description = st.text_area("Description")
 
     if st.button("Add Expense"):
+
         payload = {
             "title": title,
             "amount": amount,
@@ -55,20 +77,27 @@ if menu == "Add Expense":
             "description": description
         }
 
-         response = requests.post(
+        response = requests.post(
             f"{server}/add_expense",
             json=payload
         )
 
-        st.success(response.json()["message"])
-# -------------------------------------------------
+        if response.status_code == 200:
+            st.success(response.json()["message"])
+        else:
+            st.error("Failed To Add Expense")
+
+
+# =========================================================
 # VIEW EXPENSES
-# -------------------------------------------------
+# =========================================================
 elif menu == "View Expenses":
 
     st.header("All Expenses")
 
-    response = requests.get(f"{server}/get_expenses")
+    response = requests.get(
+        f"{server}/get_expenses"
+    )
 
     data = response.json()["expenses"]
 
@@ -80,13 +109,15 @@ elif menu == "View Expenses":
 
         total = df["amount"].sum()
 
-        st.subheader(f"Total Expense: ₹ {total}")
+        st.subheader(f"Total Expense : ₹ {total}")
 
     else:
-        st.warning("No Expenses Found")    
-# -------------------------------------------------
+        st.warning("No Expenses Found")
+
+
+# =========================================================
 # UPDATE EXPENSE
-# -------------------------------------------------
+# =========================================================
 elif menu == "Update Expense":
 
     st.header("Update Expense")
@@ -97,6 +128,9 @@ elif menu == "Update Expense":
         step=1
     )
 
+    # ----------------------------------------
+    # FETCH EXPENSE
+    # ----------------------------------------
     if st.button("Fetch Expense"):
 
         response = requests.get(
@@ -109,11 +143,20 @@ elif menu == "Update Expense":
 
             st.session_state["expense_data"] = data
 
+        else:
+            st.error("Expense Not Found")
+
+    # ----------------------------------------
+    # UPDATE FORM
+    # ----------------------------------------
     if "expense_data" in st.session_state:
 
         data = st.session_state["expense_data"]
 
-        title = st.text_input("Title", value=data["title"])
+        title = st.text_input(
+            "Title",
+            value=data["title"]
+        )
 
         amount = st.number_input(
             "Amount",
@@ -130,14 +173,14 @@ elif menu == "Update Expense":
             value=data["payment_method"]
         )
 
-        description = st.text_area(
-            "Description",
-            value=data["description"]
-        )
-
         expense_date = st.text_input(
             "Expense Date",
             value=str(data["expense_date"])
+        )
+
+        description = st.text_area(
+            "Description",
+            value=data["description"]
         )
 
         if st.button("Update Now"):
@@ -156,11 +199,15 @@ elif menu == "Update Expense":
                 json=payload
             )
 
-            st.success(response.json()["message"])
+            if response.status_code == 200:
+                st.success(response.json()["message"])
+            else:
+                st.error("Update Failed")
 
-# -------------------------------------------------
+
+# =========================================================
 # DELETE EXPENSE
-# -------------------------------------------------
+# =========================================================
 elif menu == "Delete Expense":
 
     st.header("Delete Expense")
@@ -177,12 +224,15 @@ elif menu == "Delete Expense":
             f"{server}/delete_expense/{expense_id}"
         )
 
-        st.success(response.json()["message"])
+        if response.status_code == 200:
+            st.success(response.json()["message"])
+        else:
+            st.error("Delete Failed")
 
 
-# -------------------------------------------------
+# =========================================================
 # EXPENSE SUMMARY
-# -------------------------------------------------
+# =========================================================
 elif menu == "Expense Summary":
 
     st.header("Expense Summary By Category")
