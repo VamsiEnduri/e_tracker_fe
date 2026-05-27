@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 
-server = "https://your-backend-url.onrender.com"
+server = st.secrets["be_server_url"]
 
 st.title("Expense Tracker App")
 
