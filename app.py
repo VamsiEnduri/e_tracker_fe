@@ -89,7 +89,7 @@ if menu == "Add Expense":
             if response.status_code == 200:
 
                 st.success(
-                    response.json()["message"]
+                    "added"
                 )
 
             else:
